@@ -39,7 +39,7 @@ const FriendList = () => {
 	const [friends, setFriends] = React.useState<Friend[]>([])
 	const [searchedFriends, setSearchedFriends] = React.useState<Friend[]>([])
 	const [searchBy, setSearchBy] = React.useState('')
-	const [sortBy, setSortBy] = React.useState('')
+	const [sortBy, setSortBy] = React.useState('favorite')
 	const [newFriend, setNewFriend] = React.useState('')
 
 	const searchFriends = (friend: Friend, searchTerm: string) =>
@@ -52,12 +52,24 @@ const FriendList = () => {
 		searchedFriends.length
 	)
 
+	const getSortedFriendsByType = (type: string, list = searchedFriends) => {
+		const sortedFriends = [...list]
+		if (type === 'favorite') {
+			sortedFriends.sort(sortByFavorites)
+		} else if (type === 'firstName') {
+			sortedFriends.sort(sortByFirstName)
+		} else {
+			sortedFriends.sort(sortByLastName)
+		}
+		return sortedFriends
+	}
+
 	const addNewFriend = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		event.stopPropagation()
 		if (newFriend) {
 			const nameArray = newFriend.split(' ')
-			setFriends([
+			const newFriends = [
 				...friends,
 				{
 					id: nanoid(),
@@ -65,16 +77,18 @@ const FriendList = () => {
 					lastName: nameArray[1] || '',
 					favorite: false
 				}
-			])
+			]
+			const sortedNewFriends = getSortedFriendsByType(sortBy, newFriends)
+			setFriends(sortedNewFriends)
 		}
 		setNewFriend('')
 	}
 
 	const removeFriend = (friendID: string) => () => {
 		const matchedIdx = friends.findIndex((friend) => friend.id === friendID)
-		const duplicateFriends = [...friends]
-		duplicateFriends.splice(matchedIdx, 1)
-		setFriends(duplicateFriends)
+		const otherFriends = [...friends]
+		otherFriends.splice(matchedIdx, 1)
+		setFriends(otherFriends)
 	}
 
 	const sortByName = (friend1: Friend, friend2: Friend) => {
@@ -97,26 +111,24 @@ const FriendList = () => {
 	const sortByLastName = (friend1: Friend, friend2: Friend) =>
 		friend1.lastName >= friend2.lastName ? 1 : -1
 
-	const sortFriendsList = (event: React.ChangeEvent<{ value: unknown }>) => {
+	const handleSortFriendList = (
+		event: React.ChangeEvent<{ value: unknown }>
+	) => {
 		setSortBy(event.target.value as string)
-		const duplicateFriends = [...friends]
-		if (event.target.value === 'favorite') {
-			duplicateFriends.sort(sortByFavorites)
-		} else if (event.target.value === 'firstName') {
-			duplicateFriends.sort(sortByFirstName)
-		} else {
-			duplicateFriends.sort(sortByLastName)
-		}
-		setFriends(duplicateFriends)
+		const sortedFriends = getSortedFriendsByType(event.target.value as string)
+		setSearchedFriends(sortedFriends)
 	}
 
 	const toggleFavoriteFriend = (friendID: string) => () => {
-		const matchedIdx = friends.findIndex((friend) => friend.id === friendID)
-		const duplicateFriends = [...friends]
-		duplicateFriends[matchedIdx].favorite = !duplicateFriends[matchedIdx]
-			.favorite
-		duplicateFriends.sort(sortByFavorites)
-		setFriends(duplicateFriends)
+		const matchedIdx = searchedFriends.findIndex(
+			(friend) => friend.id === friendID
+		)
+		const newFavFriends = [...searchedFriends]
+		newFavFriends[matchedIdx].favorite = !newFavFriends[matchedIdx].favorite
+		if (sortBy === 'favorite') {
+			newFavFriends.sort(sortByFavorites)
+		}
+		setSearchedFriends(newFavFriends)
 	}
 
 	const handleNewFriend = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,7 +169,7 @@ const FriendList = () => {
 							labelId='sort-friend-list'
 							id='sort-by'
 							value={sortBy}
-							onChange={sortFriendsList}
+							onChange={handleSortFriendList}
 						>
 							<MenuItem value='favorite'> Favorites </MenuItem>
 							<MenuItem value='firstName'> First Name </MenuItem>
@@ -183,7 +195,7 @@ const FriendList = () => {
 			</Box>
 			<form onSubmit={addNewFriend} className={friendListClasses.form}>
 				<List className={friendListClasses.list}>
-					<ListItem button>
+					<ListItem>
 						<InputBase
 							fullWidth
 							value={newFriend}

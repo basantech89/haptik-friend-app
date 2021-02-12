@@ -44,14 +44,14 @@ const Popup: React.FC<PopupProps> = (props) => {
 					{props.primaryBtnAction && (
 						<Button
 							onClick={props.primaryBtnAction}
-							color='primary'
+							color='secondary'
 							data-testid='confirm'
 						>
 							{props.primaryBtnLabel ?? 'Confirm'}
 						</Button>
 					)}
 					{props.secondaryBtnLabel && (
-						<Button onClick={toggleOpen} color='secondary' data-testid='cancel'>
+						<Button onClick={toggleOpen} color='primary' data-testid='cancel'>
 							{props.secondaryBtnLabel}
 						</Button>
 					)}

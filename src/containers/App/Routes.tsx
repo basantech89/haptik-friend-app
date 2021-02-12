@@ -12,7 +12,6 @@ const Routes: React.FC = () => (
 	<Suspense fallback={<Loader />}>
 		<Router>
 			<Route component={lazy(() => import('../Home'))} path='/' />
-			<Route component={lazy(() => import('../Demo'))} path='/demo' />
 			<Route
 				component={lazy(() => import('../../components/NotFound'))}
 				default

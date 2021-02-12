@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, cleanup } from '@testing-library/react'
-import App from './containers/App'
+import App from './index'
 
 afterEach(cleanup)
 
