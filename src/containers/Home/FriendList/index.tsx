@@ -1,6 +1,10 @@
 import React from 'react'
 import {
 	Box,
+	Container,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
 	Divider,
 	FormControl,
 	InputBase,
@@ -18,14 +22,35 @@ import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline'
 import StarRateIcon from '@material-ui/icons/StarRate'
 import { Friend } from '../types'
 import { nanoid } from '@reduxjs/toolkit'
-import { useFriendListStyles, useListItemStyles } from './style'
+import {
+	useFriendListStyles,
+	useListItemStyles,
+	useSearchStyles
+} from './style'
+import Pagination from '../../../components/Pagination'
+import usePagination from '../../../components/Pagination'
+import SearchIcon from '@material-ui/icons/Search'
+import Popup from '../../../components/Popup'
 
 const FriendList = () => {
 	const friendListClasses = useFriendListStyles()
+	const searchClasses = useSearchStyles()
 	const listItemClasses = useListItemStyles()
 	const [friends, setFriends] = React.useState<Friend[]>([])
+	const [searchedFriends, setSearchedFriends] = React.useState<Friend[]>([])
+	const [searchBy, setSearchBy] = React.useState('')
 	const [sortBy, setSortBy] = React.useState('')
 	const [newFriend, setNewFriend] = React.useState('')
+
+	const searchFriends = (friend: Friend, searchTerm: string) =>
+		friend.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+		friend.lastName.toLowerCase().includes(searchTerm.toLowerCase())
+
+	const rowsPerPage = 5
+	const { Pagination, firstRow, lastRow } = usePagination(
+		rowsPerPage,
+		searchedFriends.length
+	)
 
 	const addNewFriend = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
@@ -98,6 +123,19 @@ const FriendList = () => {
 		setNewFriend(event.target.value)
 	}
 
+	const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const searchTerm = event.target.value
+		setSearchBy(searchTerm)
+		const matchedFriends = friends.filter((item) =>
+			searchFriends(item, searchTerm)
+		)
+		setSearchedFriends(matchedFriends)
+	}
+
+	React.useEffect(() => {
+		setSearchedFriends([...friends])
+	}, [friends])
+
 	return (
 		<>
 			<Box
@@ -106,20 +144,42 @@ const FriendList = () => {
 				className={friendListClasses.box}
 				p={2}
 			>
-				<Typography variant='subtitle1'> Friends List </Typography>
-				<FormControl className={friendListClasses.formControl}>
-					<InputLabel id='sort-friend-list'> Sort By </InputLabel>
-					<Select
-						labelId='sort-friend-list'
-						id='sort-by'
-						value={sortBy}
-						onChange={sortFriendsList}
-					>
-						<MenuItem value='favorite'> Favorites </MenuItem>
-						<MenuItem value='firstName'> First Name </MenuItem>
-						<MenuItem value='lastName'> Last Name </MenuItem>
-					</Select>
-				</FormControl>
+				<Box
+					display='flex'
+					alignItems='center'
+					justifyContent='space-between'
+					width='40%'
+				>
+					<Typography variant='subtitle1'> Friends List </Typography>
+					<FormControl className={friendListClasses.formControl}>
+						<InputLabel id='sort-friend-list'> Sort By </InputLabel>
+						<Select
+							labelId='sort-friend-list'
+							id='sort-by'
+							value={sortBy}
+							onChange={sortFriendsList}
+						>
+							<MenuItem value='favorite'> Favorites </MenuItem>
+							<MenuItem value='firstName'> First Name </MenuItem>
+							<MenuItem value='lastName'> Last Name </MenuItem>
+						</Select>
+					</FormControl>
+				</Box>
+				<div className={searchClasses.search}>
+					<div className={searchClasses.searchIcon}>
+						<SearchIcon />
+					</div>
+					<InputBase
+						placeholder='Search…'
+						classes={{
+							root: searchClasses.inputRoot,
+							input: searchClasses.inputInput
+						}}
+						inputProps={{ 'aria-label': 'search' }}
+						value={searchBy}
+						onChange={handleSearch}
+					/>
+				</div>
 			</Box>
 			<form onSubmit={addNewFriend} className={friendListClasses.form}>
 				<List className={friendListClasses.list}>
@@ -132,8 +192,8 @@ const FriendList = () => {
 							inputProps={{ 'aria-label': 'friend-input' }}
 						/>
 					</ListItem>
-					{friends.map((friend) => (
-						<>
+					{searchedFriends.slice(firstRow, lastRow).map((friend) => (
+						<React.Fragment key={friend.id}>
 							<Divider />
 							<ListItem key={friend.id} button classes={listItemClasses}>
 								<ListItemText
@@ -142,21 +202,44 @@ const FriendList = () => {
 								/>
 								<ListItemIcon>
 									{friend.favorite ? (
-										<StarRateIcon onClick={toggleFavoriteFriend(friend.id)} />
+										<StarRateIcon
+											aria-label='unfav-friend'
+											onClick={toggleFavoriteFriend(friend.id)}
+										/>
 									) : (
 										<StarOutlineIcon
+											aria-label='fav-friend'
 											onClick={toggleFavoriteFriend(friend.id)}
 										/>
 									)}
 								</ListItemIcon>
 								<ListItemIcon>
-									<DeleteOutlineIcon onClick={removeFriend(friend.id)} />
+									<Popup
+										primaryBtnAction={removeFriend(friend.id)}
+										secondaryBtnLabel='Cancel'
+										trigger={(toggleOpen: () => void) => (
+											<DeleteOutlineIcon
+												aria-label='delete-friend'
+												onClick={toggleOpen}
+											/>
+										)}
+									>
+										<DialogTitle> Confirmation Dialog </DialogTitle>
+										<DialogContent>
+											<DialogContentText>
+												Are you sure you want to Delete {friend.firstName} ?
+											</DialogContentText>
+										</DialogContent>
+									</Popup>
 								</ListItemIcon>
 							</ListItem>
-						</>
+						</React.Fragment>
 					))}
 				</List>
 			</form>
+			<Container className={friendListClasses.pagination}>
+				<Pagination />
+			</Container>
 		</>
 	)
 }

@@ -11,7 +11,7 @@ export const useAppHeaderStyles = makeStyles(
 			title: {
 				letterSpacing: 0.7,
 				flexGrow: 1,
-				color: '#393e46',
+				color: theme.palette.primary.light,
 				textDecoration: 'none',
 				fontSize: 'large',
 				fontWeight: 'bold',
@@ -45,6 +45,6 @@ export const useAppHeaderStyles = makeStyles(
 			}
 		}),
 	{
-		name: 'Header'
+		name: 'AppHeader'
 	}
 )

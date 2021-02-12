@@ -1,8 +1,10 @@
-import { cleanup } from '@testing-library/react'
+import React from 'react'
+import { render, cleanup } from '@testing-library/react'
+import App from './containers/App'
 
 afterEach(cleanup)
 
 it('should take a snapshot', () => {
-	// const { getByText } = render(<App />)
-	// expect(getByText(/home container/i)).toBeInTheDocument()
+	const { asFragment } = render(<App />)
+	expect(asFragment(<App />)).toMatchSnapshot()
 })

@@ -22,7 +22,8 @@
     "no-console": 1,
 		"react-hooks/rules-of-hooks": 2,
 		"react-hooks/exhaustive-deps": 1,
-		"prettier/prettier": 2
+		"prettier/prettier": 2,
+		"no-unused-vars": "off"
 	},
   "plugins": ["react", "import", "jsx-a11y", "react-hooks", "@typescript-eslint", "prettier"],
   "parserOptions": {
