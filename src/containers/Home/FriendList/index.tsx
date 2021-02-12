@@ -152,15 +152,16 @@ const FriendList = () => {
 		<>
 			<Box
 				display='flex'
+				flexWrap='wrap'
 				justifyContent='space-between'
 				className={friendListClasses.box}
 				p={2}
 			>
 				<Box
 					display='flex'
-					alignItems='center'
 					justifyContent='space-between'
-					width='40%'
+					minWidth='40%'
+					className={friendListClasses.innerBox}
 				>
 					<Typography variant='subtitle1'> Friends List </Typography>
 					<FormControl className={friendListClasses.formControl}>

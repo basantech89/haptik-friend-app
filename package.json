@@ -35,8 +35,9 @@
   "lint-staged": {
     "src/**/*.{js,jsx,ts,tsx}": [
       "eslint",
-      "yarn run test:unit"
-    ]
+      "yarn run test:unit",
+			"yarn lint:fix"
+		]
   },
   "husky": {
     "hooks": {

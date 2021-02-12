@@ -1,7 +1,9 @@
 import { fade, makeStyles } from '@material-ui/core/styles'
+import { Box } from '@material-ui/core'
+import React from 'react'
 
 export const useFriendListStyles = makeStyles(
-	{
+	(theme) => ({
 		form: {
 			border: '1px solid rgba(0, 0, 0, 0.19)',
 			borderTop: 'none'
@@ -11,7 +13,23 @@ export const useFriendListStyles = makeStyles(
 			'& .MuiTypography-root': {
 				paddingBottom: 0,
 				fontWeight: 'bold',
-				display: 'flex',
+				display: 'flex'
+			},
+			[theme.breakpoints.down(842)]: {
+				flexDirection: 'column'
+			},
+			[theme.breakpoints.up(842)]: {
+				flexDirection: 'row',
+				alignItems: 'center'
+			}
+		},
+		innerBox: {
+			[theme.breakpoints.down(842)]: {
+				flexDirection: 'column',
+				marginBottom: 20
+			},
+			[theme.breakpoints.up(842)]: {
+				flexDirection: 'row',
 				alignItems: 'center'
 			}
 		},
@@ -45,7 +63,7 @@ export const useFriendListStyles = makeStyles(
 			display: 'flex',
 			justifyContent: 'center'
 		}
-	},
+	}),
 	{
 		name: 'FriendList'
 	}
